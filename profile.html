@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechSpot - Perfil</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .profile-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-info {
+            margin-top: 20px;
+        }
+        .profile-info h2 {
+            margin-top: 0;
+        }
+        .delete-account {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="index.html">TechSpot</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto" id="nav-links">
+                    <!-- Los enlaces de navegación se añadirán aquí mediante JavaScript -->
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-5 profile-container">
+        <h1>Perfil de Usuario</h1>
+        <div class="text-center">
+            <img id="profile-photo" src="img/fotoperfil.png" alt="Foto de Usuario" class="profile-photo">
+        </div>
+        <div class="profile-info text-center">
+            <h2 id="profile-username">Usuario</h2>
+            <p id="profile-email">Correo electrónico no disponible</p>
+        </div>
+        <div class="text-center delete-account">
+            <button class="btn btn-danger" id="deleteAccount">Eliminar Cuenta</button>
+        </div>
+    </main>
+
+    <footer class="text-center py-4">
+        <p>&copy; 2024 TechSpot. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('get_user.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.loggedIn) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    const username = data.username || 'Usuario';
+                    const email = data.email || 'Correo electrónico no disponible';
+                    
+                    document.getElementById('profile-username').textContent = username;
+                    document.getElementById('profile-email').textContent = email;
+
+                    const navLinks = document.getElementById('nav-links');
+                    navLinks.innerHTML = `
+                        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="catalog.html">Catálogo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="cart.html">Carrito (<span id="cart-count">0</span>)</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="profile.html">
+                                <img src="img/fotoperfil.png" alt="${username}" style="width:30px; border-radius:50%;">
+                                ${username}
+                            </a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="logout.php">Salir</a></li>
+                    `;
+
+                    updateCartCount(); // Actualizar el contador del carrito
+                })
+                .catch(error => {
+                    console.error('Error cargando datos de usuario:', error);
+                });
+        });
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            document.getElementById('cart-count').textContent = cart.length;
+        }
+
+        function deleteAccount() {
+            if (confirm('¿Estás seguro de que quieres eliminar tu cuenta?')) {
+                fetch('delete_user.php', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.href = 'index.html';
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error eliminando la cuenta:', error);
+                    alert('Hubo un problema al eliminar la cuenta.');
+                });
+            }
+        }
+
+        document.getElementById('deleteAccount').addEventListener('click', deleteAccount);
+    </script>
+</body>
+</html>

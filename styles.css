@@ -1,0 +1,123 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Header Styling */
+header {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+header nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+header nav ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Main Section Styling */
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* Cart Section Styling */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Estilo para la tabla del carrito */
+#cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+/* Estilo para las celdas de la tabla */
+#cart-table th, #cart-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    vertical-align: middle; /* Alineación vertical */
+    white-space: nowrap; /* Evitar que el texto se divida en varias líneas */
+}
+
+/* Estilo para la imagen dentro de la tabla */
+#cart-table img {
+    max-width: 50px; /* Ajusta el tamaño máximo de la imagen */
+    height: auto;
+    display: block;
+    margin: 0 auto; /* Centrar la imagen */
+}
+
+/* Estilo para el botón de eliminar */
+#cart-table .remove-button {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#cart-table .remove-button:hover {
+    background-color: #c82333;
+}
+
+/* Footer Styling */
+footer {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    #cart-table {
+        font-size: 14px;
+    }
+
+    #cart-table img {
+        max-width: 40px;
+    }
+
+    #cart-table .remove-button {
+        padding: 3px 5px;
+    }
+}

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechSpot - Detalles del Producto</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .product-image {
+            max-width: 100%;
+            height: auto;
+        }
+        .product-details {
+            margin-top: 20px;
+        }
+        .product-price {
+            font-size: 1.5em;
+            color: #28a745;
+        }
+        .product-description {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="index.html">TechSpot</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto" id="nav-links">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <!-- Los demás enlaces se añadirán aquí mediante JavaScript -->
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-5">
+        <div id="product-container"></div>
+    </main>
+
+    <footer class="text-center py-4">
+        <p>&copy; 2024 TechSpot. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Librerías de JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Script para gestionar el estado de sesión y mostrar detalles del producto -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('get_user.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.loggedIn) {
+                        // Redirige al usuario a la página de inicio de sesión si no está autenticado
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    const username = data.username;
+                    const photoURL = 'img/fotoperfil.png'; // Ruta fija para la foto de perfil
+                    const isLoggedIn = data.loggedIn;
+
+                    const navLinks = document.getElementById('nav-links');
+
+                    navLinks.innerHTML = `
+                        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="catalog.html">Catálogo</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="cart.html">
+                                Carrito <span id="cart-count"></span>
+                            </a>
+                        </li>
+                    `;
+
+                    if (isLoggedIn && username) {
+                        navLinks.innerHTML += `
+                            <li class="nav-item">
+                                <a class="nav-link" href="profile.html">
+                                    <img src="${photoURL}" alt="${username}" style="width:30px; border-radius:50%;">
+                                    ${username}
+                                </a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Salir</a></li>
+                        `;
+                    } else {
+                        navLinks.innerHTML += `
+                            <li class="nav-item"><a class="nav-link" href="login.html">Ingresar</a></li>
+                            <li class="nav-item"><a class="nav-link" href="register.html">Registro</a></li>
+                        `;
+                    }
+
+                    updateCartCount();
+                });
+        });
+
+        function logout() {
+            fetch('logout.php')
+                .then(response => response.text())
+                .then(data => {
+                    alert(data);
+                    window.location.href = 'index.html';
+                });
+        }
+
+        // Código para mostrar los detalles del producto
+        const products = [
+            {
+                id: 1,
+                name: 'Smartphone XYZ',
+                price: '$199.999',
+                description: 'Este es un smartphone de alta gama con características avanzadas y un rendimiento excepcional.',
+                image: 'img/celu1.jpg'
+            },
+            {
+                id: 2,
+                name: 'Auriculares Bluetooth ABC',
+                price: '$89.990',
+                description: 'Auriculares inalámbricos con sonido de alta calidad y confort durante largas horas de uso.',
+                image: 'img/aud.jpg'
+            },
+            {
+                id: 3,
+                name: 'Televisor 4K Ultra HD',
+                price: '$499.999',
+                description: 'Televisor de última generación con resolución 4K Ultra HD para una experiencia visual impresionante.',
+                image: 'img/tv.jpg'
+            }
+        ];
+
+        function getProductById(id) {
+            return products.find(product => product.id === parseInt(id));
+        }
+
+        function displayProduct(product) {
+            $('#product-container').html(`
+                <div class="row">
+                    <div class="col-md-6">
+                        <img src="${product.image}" alt="${product.name}" class="product-image">
+                    </div>
+                    <div class="col-md-6">
+                        <h2>${product.name}</h2>
+                        <p class="product-price">${product.price}</p>
+                        <p class="product-description">${product.description}</p>
+                        <form id="add-to-cart-form">
+                            <input type="hidden" name="product_id" value="${product.id}">
+                            <button type="submit" class="btn btn-primary">Añadir al Carrito</button>
+                        </form>
+                    </div>
+                </div>
+            `);
+
+            $('#add-to-cart-form').on('submit', function(event) {
+                event.preventDefault();
+                const productId = $(this).find('input[name="product_id"]').val();
+                addToCart(productId);
+                window.location.href = 'catalog.html'; // Redirige a catálogo
+            });
+        }
+
+        function addToCart(productId) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const product = getProductById(productId);
+
+            if (product) {
+                cart.push(product);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartCount();
+            }
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            $('#cart-count').text(' (' + cart.length + ')');
+        }
+
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('product_id');
+
+            if (productId) {
+                const product = getProductById(productId);
+                if (product) {
+                    displayProduct(product);
+                } else {
+                    $('#product-container').html('<h2>Producto no encontrado</h2>');
+                }
+            } else {
+                $('#product-container').html('<h2>Producto no especificado</h2>');
+            }
+
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>

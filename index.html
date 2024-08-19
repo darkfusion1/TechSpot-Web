@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechSpot - Inicio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Estilo del carrusel */
+        .carousel-item img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 2px solid #ddd;
+        }
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: black;
+            border-radius: 50%;
+            padding: 10px;
+        }
+        .carousel-inner {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Estilo para las tarjetas de productos */
+        .product-card {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            border-radius: 10px;
+        }
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+        .product-info {
+            margin-top: 10px;
+        }
+
+        /* Estilo para que la barra de navegación sea sticky */
+        .sticky-nav {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-nav">
+            <a class="navbar-brand" href="index.html">TechSpot</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto" id="nav-links">
+                    <!-- Los enlaces de navegación se añadirán aquí mediante JavaScript -->
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-5">
+        <!-- Carousel -->
+        <div id="productCarousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="img/img1.jpg" class="d-block w-100" alt="Smartphone XYZ">
+                </div>
+                <div class="carousel-item">
+                    <img src="img/img2.jpg" class="d-block w-100" alt="Auriculares Bluetooth ABC">
+                </div>
+                <div class="carousel-item">
+                    <img src="img/img3.jpg" class="d-block w-100" alt="Televisor 4K Ultra HD">
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#productCarousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Anterior</span>
+            </a>
+            <a class="carousel-control-next" href="#productCarousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Siguiente</span>
+            </a>
+        </div>
+
+        <!-- Sección de promociones o información adicional -->
+        <section class="mt-5">
+            <h2>Promociones y Ofertas</h2>
+            <p>¡Aprovecha nuestras ofertas exclusivas de temporada y encuentra el mejor precio en tecnología de punta!</p>
+            <p>Visítanos en nuestra tienda ubicada en <strong>Av. TechSpot 1234, Santiago</strong> o contáctanos al <strong>+56 9 1234 5678</strong>.</p>
+        </section>
+    </main>
+
+    <footer class="text-center py-4">
+        <p>&copy; 2024 TechSpot. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Librerías de JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartCount = cart.length;
+            const cartCountElement = document.getElementById('cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = ` (${cartCount})`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('get_user.php')
+                .then(response => response.json())
+                .then(data => {
+                    const username = data.username || 'Invitado';
+                    const photoURL = 'img/fotoperfil.png'; // Ruta fija para la foto de perfil
+                    const isLoggedIn = data.loggedIn;
+
+                    const navLinks = document.getElementById('nav-links');
+
+                    // Limpiar contenido previo
+                    navLinks.innerHTML = '<li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>';
+
+                    // Mostrar enlaces basados en el estado de inicio de sesión
+                    if (isLoggedIn) {
+                        navLinks.innerHTML += '<li class="nav-item"><a class="nav-link" href="catalog.html">Catálogo</a></li>';
+                        navLinks.innerHTML += '<li class="nav-item"><a class="nav-link" href="cart.html">Carrito <span id="cart-count"></span></a></li>';
+                        navLinks.innerHTML += `
+                            <li class="nav-item">
+                                <a class="nav-link" href="profile.html">
+                                    <img src="${photoURL}" alt="${username}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                                    ${username}
+                                </a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="#" id="logout-link">Salir</a></li>
+                        `;
+                    } else {
+                        navLinks.innerHTML += `
+                            <li class="nav-item"><a class="nav-link" href="login.html">Ingresar</a></li>
+                            <li class="nav-item"><a class="nav-link" href="register.html">Registro</a></li>
+                        `;
+                    }
+
+                    // Añadir evento de cierre de sesión
+                    const logoutLink = document.getElementById('logout-link');
+                    if (logoutLink) {
+                        logoutLink.addEventListener('click', function() {
+                            localStorage.removeItem('username');
+                            localStorage.removeItem('photoURL');
+                            fetch('logout.php')
+                                .then(() => {
+                                    window.location.href = 'login.html';
+                                });
+                        });
+                    }
+
+                    // Actualizar el contador del carrito
+                    updateCartCount();
+                });
+        });
+    </script>
+</body>
+</html>

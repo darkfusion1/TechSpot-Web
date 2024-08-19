@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechSpot - Carrito</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .cart-item {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cart-item img {
+            width: 100px;
+            height: auto;
+        }
+        .cart-item h5 {
+            margin: 0;
+        }
+        .cart-item p {
+            margin: 0;
+        }
+        .remove-item {
+            cursor: pointer;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="index.html">TechSpot</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto" id="nav-links">
+                    <!-- Los enlaces de navegación se añadirán aquí mediante JavaScript -->
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-5" id="cart-container" style="display: none;">
+        <h1>Tu Carrito de Compras</h1>
+        <div id="cart-items">
+            <!-- Los artículos del carrito se cargarán aquí -->
+        </div>
+        <div id="cart-total">
+            <!-- El total del carrito se mostrará aquí -->
+        </div>
+        <button id="checkout" class="btn btn-success mt-4" onclick="checkout()">Finalizar Compra</button>
+    </main>
+
+    <footer class="text-center py-4">
+        <p>&copy; 2024 TechSpot. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Librerías de JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('get_user.php')
+                .then(response => response.json())
+                .then(data => {
+                    const username = data.username;
+                    const photoURL = 'img/fotoperfil.png'; // Ruta fija para la foto de perfil
+                    const isLoggedIn = data.loggedIn;
+
+                    const navLinks = document.getElementById('nav-links');
+
+                    // Limpiar contenido previo
+                    navLinks.innerHTML = '<li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>';
+
+                    // Mostrar enlaces basados en el estado de inicio de sesión
+                    if (isLoggedIn) {
+                        navLinks.innerHTML += `
+                            <li class="nav-item"><a class="nav-link" href="catalog.html">Catálogo</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="cart.html">
+                                    Carrito <span id="cart-count"></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="profile.html">
+                                    <img src="${photoURL}" alt="${username}" style="width:30px; border-radius:50%;">
+                                    ${username}
+                                </a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="logout.php">Salir</a></li>
+                        `;
+                        // Mostrar el contenido del carrito
+                        document.getElementById('cart-container').style.display = 'block';
+                        loadCartItems();
+                        updateCartCount();
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar los datos del usuario:', error);
+                    window.location.href = 'login.html';
+                });
+        });
+
+        function loadCartItems() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            cartItems.innerHTML = '';
+            let total = 0;
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p>El carrito está vacío.</p>';
+                cartTotal.innerHTML = '';
+                return;
+            }
+
+            cart.forEach((item, index) => {
+                total += item.price * item.quantity;
+                cartItems.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div>
+                            <h5>${item.name}</h5>
+                            <p>${item.price} x ${item.quantity}</p>
+                        </div>
+                        <button class="remove-item" data-index="${index}">Eliminar</button>
+                    </div>
+                `;
+            });
+
+            cartTotal.innerHTML = `<h3>Total: $${total.toFixed(2)}</h3>`;
+
+            // Asignar evento de eliminación
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    removeFromCart(index);
+                });
+            });
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.length;
+            document.getElementById('cart-count').textContent = `(${count})`;
+        }
+
+        function removeFromCart(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCartItems();
+            updateCartCount();
+        }
+
+        function checkout() {
+            if (!localStorage.getItem('username')) {
+                alert('Necesitas iniciar sesión para finalizar la compra.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Aquí podrías agregar lógica para finalizar la compra
+            alert('Compra finalizada con éxito.');
+            localStorage.removeItem('cart'); // Vaciar el carrito después de finalizar la compra
+            loadCartItems();
+            updateCartCount();
+        }
+    </script>
+</body>
+</html>
